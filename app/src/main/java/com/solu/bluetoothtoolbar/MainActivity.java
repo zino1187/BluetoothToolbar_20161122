@@ -3,6 +3,7 @@ package com.solu.bluetoothtoolbar;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,11 +19,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.IOException;
+import java.util.UUID;
+
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
     Toolbar toolbar;
     BluetoothAdapter bluetoothAdapter;
     static final int REQUEST_BLUETOOTH_ENABLE=1;
@@ -32,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver receiver;
     ListView listView;
     DeviceListAdapter deviceListAdapter;
+
+    /*해당 디바이스에 접속하기 위해서는 소켓이 필요*/
+    BluetoothSocket socket;/*대화용 소켓, 종이컵*/
+    String UUID="8dd5677d-b88a-4683-92a1-8755887f0a93";
+    Thread connectThread;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         listView=(ListView)findViewById(R.id.listView);
         deviceListAdapter = new DeviceListAdapter(this);
         listView.setAdapter(deviceListAdapter);
+        listView.setOnItemClickListener(this);
 
         checkSupportBluetooth();
         requestActiveBluetooth();
@@ -64,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                         Device dto = new Device();
                         dto.setName(name);
                         dto.setAddress(bluetoothDevice.getAddress());
+                        dto.setBluetoothDevice(bluetoothDevice);
 
                         int count=0; /*발견횟수*/
 
@@ -180,6 +193,51 @@ public class MainActivity extends AppCompatActivity {
         switch (view.getId()){
             case R.id.bt_scan:checkAccessPermission();break;
             case R.id.bt_send: ;break;
+        }
+    }
+
+     /*--------------------------------------------------
+     선택한 디바이스에 접속!!
+     --------------------------------------------------*/
+    public void connectDevice(BluetoothDevice device){
+        /*검색을 멈춘다!!*/
+        bluetoothAdapter.cancelDiscovery();
+
+        /*브로드케스팅 그만 받기!!*/
+        this.unregisterReceiver(receiver);
+
+        try {
+            /*소켓 생성*/
+            socket=device.createRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        connectThread= new Thread(){
+            public void run() {
+                try {
+                    socket.connect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        connectThread.start();
+    }
+
+    /*원하는 디바이스를 선택한 후, 그 디바이스를
+    * 이용하여 접속을시도하겠슴*/
+    public void onItemClick(AdapterView<?> adapterView, View item, int index , long id) {
+        /* address 추출*/
+        TextView txt_address=(TextView) item.findViewById(R.id.txt_address);
+        String address=txt_address.getText().toString();
+
+        for(int i=0;i<deviceListAdapter.list.size();i++){
+            Device dto=deviceListAdapter.list.get(i);
+            if(dto.getAddress().equals(address)){
+                connectDevice(dto.getBluetoothDevice());
+            }
         }
     }
 
