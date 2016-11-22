@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/m1"
+        android:icon="@drawable/chatting"
+        android:title="블루투스 채팅1"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/m2"
+        android:icon="@drawable/music"
+        android:title="블루투스 채팅2"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/m3"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅3"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/m4"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅4"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/m5"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅5"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/m6"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅6"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/m7"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅7"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/m8"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅8"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/m9"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅9"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/m10"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="블루투스 채팅10"
+        app:showAsAction="ifRoom"/>
+
+</menu>
