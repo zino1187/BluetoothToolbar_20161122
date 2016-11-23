@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -37,12 +39,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     Button bt_scan;
     BroadcastReceiver receiver;
     ListView listView;
+    TextView txt_receive;
     DeviceListAdapter deviceListAdapter;
 
     /*해당 디바이스에 접속하기 위해서는 소켓이 필요*/
     BluetoothSocket socket;/*대화용 소켓, 종이컵*/
     String UUID="8dd5677d-b88a-4683-92a1-8755887f0a93";
     Thread connectThread;
+    Handler handler;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,12 +61,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         bt_scan=(Button)findViewById(R.id.bt_scan);
         listView=(ListView)findViewById(R.id.listView);
+        txt_receive=(TextView)findViewById(R.id.txt_receive);
+
         deviceListAdapter = new DeviceListAdapter(this);
         listView.setAdapter(deviceListAdapter);
         listView.setOnItemClickListener(this);
 
         checkSupportBluetooth();
         requestActiveBluetooth();
+
+        handler=new Handler(){
+            public void handleMessage(Message message) {
+                /*서버가 보낸 메세지 반영하기*/
+                Bundle bundle=message.getData();
+                String msg=bundle.getString("msg");
+                txt_receive.setText(msg);
+            }
+        };
 
         receiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
