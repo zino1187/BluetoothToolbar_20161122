@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     BroadcastReceiver receiver;
     ListView listView;
     TextView txt_receive;
+    EditText txt_send;
     DeviceListAdapter deviceListAdapter;
 
     /*해당 디바이스에 접속하기 위해서는 소켓이 필요*/
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     String UUID="8dd5677d-b88a-4683-92a1-8755887f0a93";
     Thread connectThread;
     Handler handler;
-
+    ClientThread clientThread;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         bt_scan=(Button)findViewById(R.id.bt_scan);
         listView=(ListView)findViewById(R.id.listView);
         txt_receive=(TextView)findViewById(R.id.txt_receive);
+        txt_send=(EditText) findViewById(R.id.txt_send);
+
 
         deviceListAdapter = new DeviceListAdapter(this);
         listView.setAdapter(deviceListAdapter);
@@ -208,7 +212,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void btnClick(View view){
         switch (view.getId()){
             case R.id.bt_scan:checkAccessPermission();break;
-            case R.id.bt_send: ;break;
+            case R.id.bt_send:
+                String msg=txt_send.getText().toString();
+                clientThread.send(msg);;break;
         }
     }
 
@@ -225,10 +231,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         try {
             /*소켓 생성*/
             socket=device.createRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
+
+            clientThread = new ClientThread(this,socket);
+            clientThread.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         connectThread= new Thread(){
             public void run() {
